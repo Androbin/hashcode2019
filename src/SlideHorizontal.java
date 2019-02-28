@@ -1,6 +1,10 @@
 public class SlideHorizontal extends Photo {
 	private Photo photo;
 
+	public SlideHorizontal(Photo photo) {
+		this.photo = photo;
+	}
+
 	@Override
 	public Photo[] getPhotos() {
 		return new Photo[]{ photo };

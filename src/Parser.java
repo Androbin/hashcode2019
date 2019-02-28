@@ -27,4 +27,12 @@ public class Parser {
 
 		return result;
 	}
+
+	public static String toOutput(List<Slide> slides) {
+		StringBuilder result = new StringBuilder();
+		for (Slide slide : slides) {
+			result.append(slide.toString()).append('\n');
+		}
+		return result.toString();
+	}
 }
