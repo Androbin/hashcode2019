@@ -1,12 +1,46 @@
 import java.util.*;
+import java.util.stream.*;
 
 public final class Solver {
 	private Solver() {
 	}
 
-	public static List<Slide> solve(final List<Photo> photos) {
-		final List<Slide> slides = new ArrayList<Slide>();
-		final List<List<Photo>> order = splitByOrder(photos);
+	private static List<Slide> getHorizontalSlides(final List<Photo> photos) {
+		return photos.stream()
+			.filter(Photo::isHorizontal)
+			.map(photo -> new SlideHorizontal(photo))
+			.collect(Collectors.toList());
+	}
+
+	private static List<Slide> getVerticalSlides(final List<Photo> photos) {
+		List<Photo> verticalPhotos = photos.stream()
+			.filter(Photo::isVertical)
+			.sorted((photo0, photo1)
+					-> Integer.compare(photo0.getTags().size(),
+						               photo1.getTags().size()))
+			.collect(Collectors.toList());
+		// Last with first ...
+		List<Slide> slides = new LinkedList<>();
+		int firstIndex = 0, lastIndex = verticalPhotos.size() - 1;
+		while (firstIndex < lastIndex) {
+			Photo first = verticalPhotos.get(firstIndex);
+			Photo last = verticalPhotos.get(lastIndex);
+			slides.add(new VerticalSlide(first, last));
+			firstIndex++; lastIndex--;
+		}
+
+		return slides;
+	}
+
+	public static List<slide> solve(final List<Photo> photos) {
+		List<Slide> slides = new LinkedList<>();
+		slides.addAll(getHorizontalSlides(photos));
+		slides.addAll(getVerticalSlides(photos));
+		return solveSlides(slides);
+	}
+
+	public static List<Slide> solveSlides(final List<Slide> slides) {
+		final List<List<Photo>> order = splitByOrder(slides);
 
 		for (final List<Photo> orderPhotos : order) {
 			slides.addAll(solveSameOrder(orderPhotos));
@@ -15,7 +49,7 @@ public final class Solver {
 		return slides;
 	}
 
-	public static List<Slide> solveSameOrder(final List<Photo> photos) {
+	public static List<Slide> solveSameOrder(final List<Slide> slides) {
 		final Map<String, List<Photo>> tags1 = new HashMap<>();
 		final Map<String, List<Photo>> tags2 = new HashMap<>();
 
