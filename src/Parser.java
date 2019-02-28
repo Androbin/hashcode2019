@@ -30,8 +30,23 @@ public class Parser {
 
 	public static String toOutput(List<Slide> slides) {
 		StringBuilder result = new StringBuilder();
+		result.append(slides.size()).append('\n');
 		for (Slide slide : slides) {
 			result.append(slide.toString()).append('\n');
+		}
+		return result.toString();
+	}
+
+	public static String toDebugOutput(List<Slide> slides) {
+		StringBuilder result = new StringBuilder();
+		result.append(slides.size()).append('\n');
+		for (Slide slide : slides) {
+			result.append(slide.toString()).append('[');
+			for (String tag : slide.getTags()) {
+				result.append(' ').append(tag);
+			}
+
+			result.append(" ]\n");
 		}
 		return result.toString();
 	}
