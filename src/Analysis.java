@@ -1,8 +1,12 @@
 import java.util.*;
 import java.io.*;
 
-public class Analysis {
-	public static void main(String[] args) throws Exception {
+public final class Analysis {
+	private Analysis() {
+	}
+
+	@SuppressWarnings("resource")
+	public static void main(final String[] args) throws IOException {
 		if (args.length != 1) {
 			System.out.println("One argument expected (only).");
 			System.exit(1);
@@ -15,7 +19,8 @@ public class Analysis {
 		System.out.println("Photos: " + input.size());
 
 		double averageTagLength = 0.0;
-		for (Photo photo : input) {
+
+		for (final Photo photo : input) {
 			averageTagLength += photo.getTags().size();
 		}
 
