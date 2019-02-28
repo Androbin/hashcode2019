@@ -12,6 +12,9 @@ public class Parser {
 
 		List<Photo> result = new LinkedList<>();
 		for (int i = 1; i < lines.length; ++i) {
+			if (lines[i].trim().isEmpty())
+				continue; // We'll just happily continue
+
 			List photoTags = Arrays.asList(lines[i].split(' '));
 			assert photoTags.length() > 0;
 
