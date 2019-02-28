@@ -1,7 +1,11 @@
 import java.io.*;
 import java.util.*;
+import java.util.stream.*;
 
 public final class Main {
+	private Main() {
+	}
+
 	public static void main(final String[] args) throws IOException {
 		final BufferedReader reader = new BufferedReader(new FileReader(new File(args[0])));
 		final BufferedWriter writer = new BufferedWriter(new FileWriter(new File(args[1])));
