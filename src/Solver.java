@@ -15,11 +15,11 @@ public final class Solver {
 				.sorted((photo0, photo1) -> Integer.compare(photo0.getTags().size(), photo1.getTags().size()))
 				.collect(Collectors.toList());
 		// Last with first ...
-		List<Slide> slides = new LinkedList<>();
+		final List<Slide> slides = new LinkedList<>();
 		int firstIndex = 0, lastIndex = verticalPhotos.size() - 1;
 		while (firstIndex < lastIndex) {
-			Photo first = verticalPhotos.get(firstIndex);
-			Photo last = verticalPhotos.get(lastIndex);
+			final Photo first = verticalPhotos.get(firstIndex);
+			final Photo last = verticalPhotos.get(lastIndex);
 			slides.add(new SlideVertical(first, last));
 			firstIndex++;
 			lastIndex--;
@@ -36,17 +36,40 @@ public final class Solver {
 	}
 
 	public static List<Slide> solveSlides(final List<Slide> slides) {
-		final List<Slide> presentation = new ArrayList<Slide>();
+		final List<Slide> presentation = new ArrayList<>();
 		final List<List<Slide>> order = splitByOrder(slides);
 
 		for (final List<Slide> orderPhotos : order) {
-			presentation.addAll(solveSameOrder(orderPhotos));
+			presentation.addAll(solveSameOrderQuick(orderPhotos));
+		}
+
+		return presentation;
+	}
+
+	public static List<Slide> solveSameOrderQuick(final List<Slide> slides) {
+		final List<UniSlide> uniSlides = new ArrayList<>();
+
+		for (final Slide slide : slides) {
+			for (final String tag : slide.getTags()) {
+				uniSlides.add(new UniSlide(slide, tag));
+			}
+		}
+
+		uniSlides.sort((s1, s2) -> s1.tag.compareTo(s2.tag));
+
+		// TODO: eliminate
+
+		final List<Slide> presentation = new ArrayList<>();
+
+		for (final UniSlide uniSlide : uniSlides) {
+			presentation.add(uniSlide.slide);
 		}
 
 		return presentation;
 	}
 
 	public static List<Slide> solveSameOrder(final List<Slide> slides) {
+		System.out.print("X");
 		final Map<String, List<Slide>> tags1 = new HashMap<>();
 		final Map<String, List<Slide>> tags2 = new HashMap<>();
 
@@ -59,15 +82,17 @@ public final class Solver {
 						continue;
 					}
 
-					final String tag12 = tag1.compareTo(tag2) > 0 ? tag1 : tag2;
+					final String tag12 = tag1.compareTo(tag2) > 0 ? tag1 + tag2 : tag2 + tag1;
 					tags2.computeIfAbsent(tag12, foo -> new ArrayList<>()).add(slide);
 				}
 			}
 		}
 
-		tags2.values().forEach(list -> System.out.println(list.size()));
+		// tags2.values().forEach(list -> System.out.println(list.size()));
 
 		final List<List<Slide>> transitions = new ArrayList<>();
+
+		int[] x = new int[1];
 
 		tags2.forEach((tag, slides2) -> {
 			slides2.forEach(slide1 -> {
@@ -79,9 +104,12 @@ public final class Solver {
 					transitions.add(Arrays.asList(slide1, slide2));
 				});
 			});
+			x[0] += slides.size() * slides.size();
 		});
 
-		Collections.sort(transitions, (t1, t2) -> {
+		System.out.println(x[0]);
+
+		transitions.sort((t1, t2) -> {
 			return 0;
 		});
 
@@ -100,5 +128,15 @@ public final class Solver {
 		}
 
 		return output;
+	}
+
+	private static class UniSlide {
+		public final Slide slide;
+		public final String tag;
+
+		public UniSlide(final Slide slide, final String tag) {
+			this.slide = slide;
+			this.tag = tag;
+		}
 	}
 }

@@ -12,5 +12,7 @@ public final class Main {
 		final List<Photo> input = Parser.parse(reader.lines());
 		final List<Slide> output = Solver.solve(input);
 		writer.write(Parser.toOutput(output));
+		writer.flush();
+		writer.close();
 	}
 }
