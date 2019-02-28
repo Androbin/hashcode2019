@@ -4,7 +4,7 @@ public final class Solver {
 	private Solver() {
 	}
 
-	public static List<List<Integer>> solve(final List<Photo> photos) {
+	public static List<Slide> solve(final List<Photo> photos) {
 		final Map<String, List<Photo>> tags = new HashMap<>();
 
 		for (final Photo photo : photos) {
