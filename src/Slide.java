@@ -1,3 +1,5 @@
+import java.util.*;
+
 public abstract class Slide {
 	public Slide() {}
 

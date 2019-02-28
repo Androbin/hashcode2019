@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class SolverSanity {
 
 	private SolverSanity() {}
@@ -8,8 +10,8 @@ public class SolverSanity {
 			for (Photo photo : slide.getPhotos()) {
 				if (photoIdentifiers.contains(photo.getIdentifier()))
 					return false;
-
-				photoIndentifiers.add(photo.getIdentifier());
+				photoIdentifiers.add(photo.getIdentifier());
+			}
 		}
 
 		return true;

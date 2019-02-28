@@ -17,14 +17,17 @@ public final class Parser {
 			if (lines[i].trim().isEmpty())
 				continue; // We'll just happily continue
 
-			List<String> photoTags = Arrays.asList(lines[i].split(" "));
-			assert photoTags.size() > 0;
+			String[] photoTags = lines[i].split(" ");
+			assert photoTags.length > 0;
 
 			// Get vertical property
-			boolean vertical = photoTags.get(0).equals("V");
+			boolean vertical = photoTags[0].equals("V");
 			// Get tags (remove alignment property)
-			photoTags.remove(0);
-			result.add(new Photo(vertical, photoTags, identifierCount++));
+			List<String> photoTagList = new LinkedList<>();
+			for (int j = 1; j < photoTags.length; ++j)
+				photoTagList.add(photoTags[j]);
+			result.add(new Photo(vertical,
+						photoTagList, identifierCount++));
 		}
 
 		return result;
