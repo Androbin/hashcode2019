@@ -4,8 +4,10 @@ public class Parser {
 	private Parser() {}
 
 	public static List<Photo> parse(Stream<String> linesStream) {
+		int identifierCount = 0;
+
 		String[] lines = lineStream.toArray();
-		int photoLines = lines[0];
+		int photoLines = Integer.parseInt(lines[0]);
 		assert photoLines == lines.length - 1;
 
 		List<Photo> result = new LinkedList<>();
@@ -17,7 +19,9 @@ public class Parser {
 			boolean vertical = photoTags.get(0).equals("V");
 			// Get tags (remove alignment property)
 			photoTags.removeAt(0);
-			result.add(new Photo(vertical, photoTags));
+			result.add(new Photo(vertical, photoTags, identifierCount++));
 		}
+
+		return result;
 	}
 }
