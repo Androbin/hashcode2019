@@ -1,5 +1,3 @@
-import java.util.*;
-
 public class SlideVertical extends Slide {
 	private Photo left, right;
 
@@ -18,7 +16,7 @@ public class SlideVertical extends Slide {
 
 	@Override
 	public Photo[] getPhotos() {
-		return new Photo[]{ left, right };
+		return new Photo[] { left, right };
 	}
 
 	@Override

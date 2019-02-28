@@ -1,4 +1,4 @@
-public class SlideHorizontal extends Photo {
+public class SlideHorizontal extends Slide {
 	private Photo photo;
 
 	public SlideHorizontal(Photo photo) {
@@ -7,7 +7,7 @@ public class SlideHorizontal extends Photo {
 
 	@Override
 	public Photo[] getPhotos() {
-		return new Photo[]{ photo };
+		return new Photo[] { photo };
 	}
 
 	public Photo getPhoto() {

@@ -1,12 +1,14 @@
 import java.util.*;
+import java.util.stream.*;
 
-public class Parser {
-	private Parser() {}
+public final class Parser {
+	private Parser() {
+	}
 
-	public static List<Photo> parse(Stream<String> linesStream) {
+	public static List<Photo> parse(final Stream<String> lineStream) {
 		int identifierCount = 0;
 
-		String[] lines = lineStream.toArray();
+		String[] lines = lineStream.toArray(n -> new String[n]);
 		int photoLines = Integer.parseInt(lines[0]);
 		assert photoLines == lines.length - 1;
 
@@ -15,13 +17,13 @@ public class Parser {
 			if (lines[i].trim().isEmpty())
 				continue; // We'll just happily continue
 
-			List photoTags = Arrays.asList(lines[i].split(' '));
-			assert photoTags.length() > 0;
+			List<String> photoTags = Arrays.asList(lines[i].split(" "));
+			assert photoTags.size() > 0;
 
 			// Get vertical property
 			boolean vertical = photoTags.get(0).equals("V");
 			// Get tags (remove alignment property)
-			photoTags.removeAt(0);
+			photoTags.remove(0);
 			result.add(new Photo(vertical, photoTags, identifierCount++));
 		}
 
