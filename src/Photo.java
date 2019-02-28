@@ -16,4 +16,13 @@ public class Photo {
 	public boolean isHorizontal() {
 		return !vertical;
 	}
+
+	public List<String> getTags() {
+		return tags;
+	}
+
+	public void set(boolean vertical, List<String> tags) {
+		this.vertical = vertical;
+		this.tags = tags;
+	}
 }
