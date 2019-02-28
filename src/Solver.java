@@ -5,12 +5,12 @@ public final class Solver {
 	private Solver() {
 	}
 
-	private static List<Slide> getHorizontalSlides(final List<Photo> photos) {
+	public static List<Slide> getHorizontalSlides(final List<Photo> photos) {
 		return photos.stream().filter(Photo::isHorizontal).map(photo -> new SlideHorizontal(photo))
 				.collect(Collectors.toList());
 	}
 
-	private static List<Slide> getVerticalSlides(final List<Photo> photos) {
+	public static List<Slide> getVerticalSlides(final List<Photo> photos) {
 		List<Photo> verticalPhotos = photos.stream().filter(Photo::isVertical)
 				.sorted((photo0, photo1) -> Integer.compare(photo0.getTags().size(), photo1.getTags().size()))
 				.collect(Collectors.toList());
