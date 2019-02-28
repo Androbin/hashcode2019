@@ -48,18 +48,44 @@ public final class Solver {
 
 	public static List<Slide> solveSameOrderQuick(final List<Slide> slides) {
 		final List<UniSlide> uniSlides = new ArrayList<>();
+		final Map<Slide, List<UniSlide>> map = new HashMap<>();
 
 		for (final Slide slide : slides) {
 			for (final String tag : slide.getTags()) {
-				uniSlides.add(new UniSlide(slide, tag));
+				final UniSlide us = new UniSlide(slide, tag);
+				uniSlides.add(us);
+				map.computeIfAbsent(slide, foo -> new ArrayList<>()).add(us);
 			}
 		}
 
 		uniSlides.sort((s1, s2) -> s1.tag.compareTo(s2.tag));
 
-		// TODO: eliminate
-
 		final List<Slide> presentation = new ArrayList<>();
+
+		while (uniSlides.size() > slides.size()) {
+			System.out.println(uniSlides.size() + "\t" + slides.size());
+			for (int i = 0; i < uniSlides.size(); i++) {
+				uniSlides.get(i).score = 0;
+			}
+
+			for (int i = 0; i < uniSlides.size() - 1; i++) {
+				final UniSlide us1 = uniSlides.get(i);
+				final UniSlide us2 = uniSlides.get(i + 1);
+				final int score = SolverSimple.slideInterest(us1.slide, us2.slide);
+				us1.score += score;
+				us2.score += score;
+			}
+
+			map.forEach((slide, uniSlides2) -> {
+				uniSlides2.sort((us1, us2) -> Integer.compare(us1.score, us2.score));
+
+				for (int i = 0; i < uniSlides2.size() - 1; i++) {
+					if (uniSlides2.size() > 1) {
+						uniSlides.remove(uniSlides2.remove(uniSlides2.size() - 1));
+					}
+				}
+			});
+		}
 
 		for (final UniSlide uniSlide : uniSlides) {
 			presentation.add(uniSlide.slide);
@@ -133,6 +159,7 @@ public final class Solver {
 	private static class UniSlide {
 		public final Slide slide;
 		public final String tag;
+		public int score;
 
 		public UniSlide(final Slide slide, final String tag) {
 			this.slide = slide;

@@ -2,8 +2,9 @@ import java.util.*;
 import java.util.stream.*;
 import java.io.*;
 
-public class SolverSimple {
-	public static void main(String[] args) throws Exception {
+public final class SolverSimple {
+	@SuppressWarnings("resource")
+	public static void main(final String[] args) throws IOException {
 		assert args.length == 2;
 
 		final BufferedReader reader = new BufferedReader(new FileReader(new File(args[0])));
@@ -15,9 +16,7 @@ public class SolverSimple {
 	}
 
 	private static List<String> mergeTagLists(List<String> l0, List<String> l1) {
-		return l0.stream()
-			.filter(tag -> l1.contains(tag))
-			.collect(Collectors.toList());
+		return l0.stream().filter(tag -> l1.contains(tag)).collect(Collectors.toList());
 	}
 
 	public static int slideInterest(Slide slide0, Slide slide1) {
@@ -74,20 +73,21 @@ public class SolverSimple {
 	}
 
 	public static List<Slide> solve(List<Photo> input) {
-			List<Slide> slides = new LinkedList<>();
-			slides.addAll(Solver.getHorizontalSlides(input));
-			slides.addAll(Solver.getVerticalSlides(input));
+		List<Slide> slides = new LinkedList<>();
+		slides.addAll(Solver.getHorizontalSlides(input));
+		slides.addAll(Solver.getVerticalSlides(input));
 
-			// Order by tag length
-			slides = slides.stream()
+		// Order by tag length
+		slides = slides.stream()
 				.sorted((photo0, photo1) -> Integer.compare(photo0.getTags().size(), photo1.getTags().size()))
 				.collect(Collectors.toList());
 
-			// Make slides to linkedlist
-			List<Slide> tmpSlides = new LinkedList<>();
-			tmpSlides.addAll(slides); slides = tmpSlides;
+		// Make slides to linkedlist
+		List<Slide> tmpSlides = new LinkedList<>();
+		tmpSlides.addAll(slides);
+		slides = tmpSlides;
 
-			slides = sortByMaxInterest(slides);
-			return slides;
+		slides = sortByMaxInterest(slides);
+		return slides;
 	}
 }
