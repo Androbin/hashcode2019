@@ -166,4 +166,22 @@ public final class Solver {
 			this.tag = tag;
 		}
 	}
+
+	public int score(final List<Slide> slides) {
+		int result = 0;
+
+		Slide lastSlide = null;
+		for (Slide slide : slides) {
+			if (lastSlide == null) {
+				lastSlide = slide
+				continue;
+			}
+
+			// Compute interest rate
+			result += SolverSimple.slideInterest(lastSlide, slide);
+			lastSlide = slide;
+		}
+
+		return result;
+	}
 }
