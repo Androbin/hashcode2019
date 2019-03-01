@@ -4,6 +4,7 @@ public class SlideVertical extends Slide {
 	public SlideVertical(Photo left, Photo right) {
 		this.left = left;
 		this.right = right;
+		cacheTags();
 	}
 
 	public Photo getLeft() {

@@ -3,6 +3,7 @@ public class SlideHorizontal extends Slide {
 
 	public SlideHorizontal(Photo photo) {
 		this.photo = photo;
+		cacheTags();
 	}
 
 	@Override

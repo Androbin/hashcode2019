@@ -1,6 +1,8 @@
 import java.util.*;
 
 public abstract class Slide {
+	private List<String> cachedTags;
+
 	public Slide() {}
 
 	/** Get contained photos
@@ -15,15 +17,19 @@ public abstract class Slide {
 	 * @return Returns merged tags of {@link getPhotos}.
 	 */
 	public List<String> getTags() {
-		List<String> result = new LinkedList<>();
+		return cachedTags;
+	}
+
+
+	protected void cacheTags() {
+		cachedTags = new LinkedList<>();
+
 		Photo[] photos = getPhotos();
 		for (Photo photo : photos) {
 			for (String tag : photo.getTags()) {
-				if (!result.contains(tag))
-					result.add(tag);
+				if (!cachedTags.contains(tag))
+					cachedTags.add(tag);
 			}
 		}
-
-		return result;
 	}
 }
