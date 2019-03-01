@@ -5,18 +5,29 @@ public final class Solver {
 	private Solver() {
 	}
 
+	private static int mergeTagLists(final List<String> l0, final List<String> l1) {
+		return (int) l0.stream().filter(l1::contains).count();
+	}
+
+	public static int slideInterest(final Slide slide0, final Slide slide1) {
+		final int mergedTags = mergeTagLists(slide0.getTags(), slide1.getTags());
+		return Math.min(slide0.getTags().size() - mergedTags,
+				Math.min(mergedTags, slide1.getTags().size() - mergedTags));
+	}
+
 	public static List<Slide> getHorizontalSlides(final List<Photo> photos) {
 		return photos.stream().filter(Photo::isHorizontal).map(photo -> new SlideHorizontal(photo))
 				.collect(Collectors.toList());
 	}
 
-	public static List<Slide> getVerticalSlides(final List<Photo> photos) {
+	public static List<Slide> getVerticalSlidesLastFirst(final List<Photo> photos) {
 		List<Photo> verticalPhotos = photos.stream().filter(Photo::isVertical)
 				.sorted((photo0, photo1) -> Integer.compare(photo0.getTags().size(), photo1.getTags().size()))
 				.collect(Collectors.toList());
 		// Last with first ...
-		final List<Slide> slides = new LinkedList<>();
+		final List<Slide> slides = new ArrayList<>(verticalPhotos.size() / 2);
 		int firstIndex = 0, lastIndex = verticalPhotos.size() - 1;
+
 		while (firstIndex < lastIndex) {
 			final Photo first = verticalPhotos.get(firstIndex);
 			final Photo last = verticalPhotos.get(lastIndex);
@@ -28,10 +39,26 @@ public final class Solver {
 		return slides;
 	}
 
+	public static List<Slide> getVerticalSlidesFirstSecond(final List<Photo> photos) {
+		List<Photo> verticalPhotos = photos.stream().filter(Photo::isVertical)
+				.sorted((photo0, photo1) -> Integer.compare(photo0.getTags().size(), photo1.getTags().size()))
+				.collect(Collectors.toList());
+		// First with second ...
+		final List<Slide> slides = new ArrayList<>(verticalPhotos.size() / 2);
+
+		for (int i = 0; i < verticalPhotos.size() - 1; i += 2) {
+			final Photo first = verticalPhotos.get(i);
+			final Photo second = verticalPhotos.get(i + 1);
+			slides.add(new SlideVertical(first, second));
+		}
+
+		return slides;
+	}
+
 	public static List<Slide> solve(final List<Photo> photos) {
 		List<Slide> slides = new LinkedList<>();
 		slides.addAll(getHorizontalSlides(photos));
-		slides.addAll(getVerticalSlides(photos));
+		slides.addAll(getVerticalSlidesFirstSecond(photos));
 		return solveSlides(slides);
 	}
 
@@ -51,19 +78,20 @@ public final class Solver {
 		final Map<Slide, List<UniSlide>> map = new HashMap<>();
 
 		for (final Slide slide : slides) {
+			map.put(slide, new ArrayList<>());
+
 			for (final String tag : slide.getTags()) {
 				final UniSlide us = new UniSlide(slide, tag);
 				uniSlides.add(us);
-				map.computeIfAbsent(slide, foo -> new ArrayList<>()).add(us);
+				map.get(slide).add(us);
 			}
 		}
 
 		uniSlides.sort((s1, s2) -> s1.tag.compareTo(s2.tag));
 
-		final List<Slide> presentation = new ArrayList<>();
-
 		while (uniSlides.size() > slides.size()) {
 			System.out.println(uniSlides.size() + "\t" + slides.size());
+
 			for (int i = 0; i < uniSlides.size(); i++) {
 				uniSlides.get(i).score = 0;
 			}
@@ -71,21 +99,22 @@ public final class Solver {
 			for (int i = 0; i < uniSlides.size() - 1; i++) {
 				final UniSlide us1 = uniSlides.get(i);
 				final UniSlide us2 = uniSlides.get(i + 1);
-				final int score = SolverSimple.slideInterest(us1.slide, us2.slide);
+				final int score = slideInterest(us1.slide, us2.slide);
 				us1.score += score;
 				us2.score += score;
 			}
 
 			map.forEach((slide, uniSlides2) -> {
-				uniSlides2.sort((us1, us2) -> Integer.compare(us1.score, us2.score));
+				uniSlides2.sort((us1, us2) -> -Integer.compare(us1.score, us2.score));
+				final int keep = (uniSlides2.size() + 1) / 2;
 
-				for (int i = 0; i < uniSlides2.size() - 1; i++) {
-					if (uniSlides2.size() > 1) {
-						uniSlides.remove(uniSlides2.remove(uniSlides2.size() - 1));
-					}
+				while (uniSlides2.size() > keep) {
+					uniSlides.remove(uniSlides2.remove(uniSlides2.size() - 1));
 				}
 			});
 		}
+
+		final List<Slide> presentation = new ArrayList<>();
 
 		for (final UniSlide uniSlide : uniSlides) {
 			presentation.add(uniSlide.slide);
@@ -118,8 +147,6 @@ public final class Solver {
 
 		final List<List<Slide>> transitions = new ArrayList<>();
 
-		int[] x = new int[1];
-
 		tags2.forEach((tag, slides2) -> {
 			slides2.forEach(slide1 -> {
 				slides2.forEach(slide2 -> {
@@ -130,10 +157,7 @@ public final class Solver {
 					transitions.add(Arrays.asList(slide1, slide2));
 				});
 			});
-			x[0] += slides.size() * slides.size();
 		});
-
-		System.out.println(x[0]);
 
 		transitions.sort((t1, t2) -> {
 			return 0;
@@ -143,14 +167,14 @@ public final class Solver {
 	}
 
 	public static List<List<Slide>> splitByOrder(final List<Slide> slides) {
-		List<List<Slide>> output = new ArrayList<>(100);
+		final List<List<Slide>> output = new ArrayList<>(100);
 
-		for (int i = 1; i <= 100; i++) {
+		for (int i = 0; i < 100; i++) {
 			output.add(new ArrayList<>());
 		}
 
 		for (final Slide slide : slides) {
-			output.get(slide.getTags().size()).add(slide);
+			output.get(slide.getTags().size() - 1).add(slide);
 		}
 
 		return output;
@@ -169,16 +193,16 @@ public final class Solver {
 
 	public int score(final List<Slide> slides) {
 		int result = 0;
-
 		Slide lastSlide = null;
-		for (Slide slide : slides) {
+
+		for (final Slide slide : slides) {
 			if (lastSlide == null) {
-				lastSlide = slide
+				lastSlide = slide;
 				continue;
 			}
 
 			// Compute interest rate
-			result += SolverSimple.slideInterest(lastSlide, slide);
+			result += slideInterest(lastSlide, slide);
 			lastSlide = slide;
 		}
 

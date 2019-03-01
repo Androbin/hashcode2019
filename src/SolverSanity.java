@@ -1,15 +1,18 @@
 import java.util.*;
 
-public class SolverSanity {
+public final class SolverSanity {
+	private SolverSanity() {
+	}
 
-	private SolverSanity() {}
+	public static boolean sanity(final List<Slide> slides) {
+		final List<Integer> photoIdentifiers = new LinkedList<>();
 
-	public static boolean sanity(List<Slide> slides) {
-		List<Integer> photoIdentifiers = new LinkedList<>();
-		for (Slide slide : slides) {
-			for (Photo photo : slide.getPhotos()) {
-				if (photoIdentifiers.contains(photo.getIdentifier()))
+		for (final Slide slide : slides) {
+			for (final Photo photo : slide.getPhotos()) {
+				if (photoIdentifiers.contains(photo.getIdentifier())) {
 					return false;
+				}
+
 				photoIdentifiers.add(photo.getIdentifier());
 			}
 		}
