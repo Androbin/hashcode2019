@@ -21,9 +21,9 @@ public final class Parser {
 			// Get vertical property
 			boolean vertical = photoTags[0].equals("V");
 			// Get tags (remove alignment property)
-			final List<String> photoTagList = new LinkedList<>();
+			final List<String> photoTagList = new ArrayList<>(photoTags.length - 2);
 
-			for (int j = 1; j < photoTags.length; ++j) {
+			for (int j = 2; j < photoTags.length; ++j) {
 				photoTagList.add(photoTags[j]);
 			}
 

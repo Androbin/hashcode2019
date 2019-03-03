@@ -161,7 +161,6 @@ public final class Solver {
 		}
 	}
 
-	// TODO: Google calculates a different score?
 	public static int score(final List<Slide> slides) {
 		int result = 0;
 		Slide lastSlide = null;
