@@ -1,7 +1,7 @@
-public class SlideHorizontal extends Slide {
-	private Photo photo;
+public final class SlideHorizontal extends Slide {
+	private final Photo photo;
 
-	public SlideHorizontal(Photo photo) {
+	public SlideHorizontal(final Photo photo) {
 		this.photo = photo;
 		cacheTags();
 	}

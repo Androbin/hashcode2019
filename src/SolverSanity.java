@@ -5,7 +5,7 @@ public final class SolverSanity {
 	}
 
 	public static boolean sanity(final List<Slide> slides) {
-		final List<Integer> photoIdentifiers = new LinkedList<>();
+		final Set<Integer> photoIdentifiers = new HashSet<>();
 
 		for (final Slide slide : slides) {
 			for (final Photo photo : slide.getPhotos()) {

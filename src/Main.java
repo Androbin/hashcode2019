@@ -11,6 +11,8 @@ public final class Main {
 		final BufferedWriter writer = new BufferedWriter(new FileWriter(new File(args[1])));
 		final List<Photo> input = Parser.parse(reader.lines());
 		final List<Slide> output = Solver.solve(input);
+		System.out.println("score: " + Solver.score(output));
+		System.out.println("sane: " + SolverSanity.sanity(output));
 		writer.write(Parser.toOutput(output));
 		writer.flush();
 		writer.close();

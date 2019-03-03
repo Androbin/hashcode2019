@@ -1,18 +1,11 @@
-public class SlideVertical extends Slide {
-	private Photo left, right;
+public final class SlideVertical extends Slide {
+	private final Photo left;
+	private final Photo right;
 
-	public SlideVertical(Photo left, Photo right) {
+	public SlideVertical(final Photo left, final Photo right) {
 		this.left = left;
 		this.right = right;
 		cacheTags();
-	}
-
-	public Photo getLeft() {
-		return left;
-	}
-
-	public Photo getRight() {
-		return right;
 	}
 
 	@Override
@@ -22,7 +15,7 @@ public class SlideVertical extends Slide {
 
 	@Override
 	public boolean sanity() {
-		return getLeft().isVertical() && getRight().isVertical();
+		return left.isVertical() && right.isVertical();
 	}
 
 	@Override

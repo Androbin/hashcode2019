@@ -5,41 +5,22 @@ public final class Solver {
 	private Solver() {
 	}
 
-	private static int mergeTagLists(final List<String> l0, final List<String> l1) {
+	private static <T> int intersect(final List<T> l0, final List<T> l1) {
 		return (int) l0.stream().filter(l1::contains).count();
 	}
 
-	public static int slideInterest(final Slide slide0, final Slide slide1) {
-		final int mergedTags = mergeTagLists(slide0.getTags(), slide1.getTags());
-		return Math.min(slide0.getTags().size() - mergedTags,
-				Math.min(mergedTags, slide1.getTags().size() - mergedTags));
+	private static int slideInterest(final Slide slide0, final Slide slide1) {
+		final int intersection = intersect(slide0.getTags(), slide1.getTags());
+		return Math.min(slide0.getTags().size() - intersection,
+				Math.min(intersection, slide1.getTags().size() - intersection));
 	}
 
-	public static List<Slide> getHorizontalSlides(final List<Photo> photos) {
+	private static List<Slide> getHorizontalSlides(final List<Photo> photos) {
 		return photos.stream().filter(Photo::isHorizontal).map(photo -> new SlideHorizontal(photo))
 				.collect(Collectors.toList());
 	}
 
-	public static List<Slide> getVerticalSlidesLastFirst(final List<Photo> photos) {
-		List<Photo> verticalPhotos = photos.stream().filter(Photo::isVertical)
-				.sorted((photo0, photo1) -> Integer.compare(photo0.getTags().size(), photo1.getTags().size()))
-				.collect(Collectors.toList());
-		// Last with first ...
-		final List<Slide> slides = new ArrayList<>(verticalPhotos.size() / 2);
-		int firstIndex = 0, lastIndex = verticalPhotos.size() - 1;
-
-		while (firstIndex < lastIndex) {
-			final Photo first = verticalPhotos.get(firstIndex);
-			final Photo last = verticalPhotos.get(lastIndex);
-			slides.add(new SlideVertical(first, last));
-			firstIndex++;
-			lastIndex--;
-		}
-
-		return slides;
-	}
-
-	public static List<Slide> getVerticalSlidesFirstSecond(final List<Photo> photos) {
+	private static List<Slide> getVerticalSlides(final List<Photo> photos) {
 		List<Photo> verticalPhotos = photos.stream().filter(Photo::isVertical)
 				.sorted((photo0, photo1) -> Integer.compare(photo0.getTags().size(), photo1.getTags().size()))
 				.collect(Collectors.toList());
@@ -56,13 +37,13 @@ public final class Solver {
 	}
 
 	public static List<Slide> solve(final List<Photo> photos) {
-		List<Slide> slides = new LinkedList<>();
+		final List<Slide> slides = new LinkedList<>();
 		slides.addAll(getHorizontalSlides(photos));
-		slides.addAll(getVerticalSlidesFirstSecond(photos));
+		slides.addAll(getVerticalSlides(photos));
 		return solveSlides(slides);
 	}
 
-	public static List<Slide> solveSlides(final List<Slide> slides) {
+	private static List<Slide> solveSlides(final List<Slide> slides) {
 		final List<Slide> presentation = new ArrayList<>();
 		final List<List<Slide>> order = splitByOrder(slides);
 
@@ -191,7 +172,8 @@ public final class Solver {
 		}
 	}
 
-	public int score(final List<Slide> slides) {
+	// TODO: Google calculates a different score?
+	public static int score(final List<Slide> slides) {
 		int result = 0;
 		Slide lastSlide = null;
 

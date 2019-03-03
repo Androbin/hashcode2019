@@ -3,13 +3,13 @@ import java.util.*;
 public abstract class Slide {
 	private List<String> cachedTags;
 
-	public Slide() {}
-
-	/** Get contained photos
+	/**
+	 * Get contained photos
 	 */
 	public abstract Photo[] getPhotos();
 
-	/** Check if sane
+	/**
+	 * Check if sane
 	 */
 	public abstract boolean sanity();
 
@@ -20,15 +20,16 @@ public abstract class Slide {
 		return cachedTags;
 	}
 
-
 	protected void cacheTags() {
 		cachedTags = new LinkedList<>();
 
-		Photo[] photos = getPhotos();
-		for (Photo photo : photos) {
-			for (String tag : photo.getTags()) {
-				if (!cachedTags.contains(tag))
+		final Photo[] photos = getPhotos();
+
+		for (final Photo photo : photos) {
+			for (final String tag : photo.getTags()) {
+				if (!cachedTags.contains(tag)) {
 					cachedTags.add(tag);
+				}
 			}
 		}
 	}

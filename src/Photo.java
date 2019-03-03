@@ -1,11 +1,11 @@
 import java.util.*;
 
-public class Photo {
-	private boolean vertical;
-	private List<String> tags;
-	private int id;
+public final class Photo {
+	private final boolean vertical;
+	private final List<String> tags;
+	private final int id;
 
-	public Photo(boolean vertical, List<String> tags, int id) {
+	public Photo(final boolean vertical, final List<String> tags, final int id) {
 		this.vertical = vertical;
 		this.tags = tags;
 		this.id = id;
@@ -25,10 +25,5 @@ public class Photo {
 
 	public int getIdentifier() {
 		return id;
-	}
-
-	public void set(boolean vertical, List<String> tags) {
-		this.vertical = vertical;
-		this.tags = tags;
 	}
 }
