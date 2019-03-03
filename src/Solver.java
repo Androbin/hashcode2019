@@ -48,13 +48,18 @@ public final class Solver {
 		final List<List<Slide>> order = splitByOrder(slides);
 
 		for (final List<Slide> orderPhotos : order) {
-			presentation.addAll(solveSameOrderQuick(orderPhotos));
+			if (orderPhotos.isEmpty()) {
+				continue;
+			}
+
+			presentation.addAll(solveGreedy(orderPhotos));
 		}
 
 		return presentation;
 	}
 
-	public static List<Slide> solveSameOrderQuick(final List<Slide> slides) {
+	// use for dataset B
+	private static List<Slide> solveUniSlides(final List<Slide> slides) {
 		final List<UniSlide> uniSlides = new ArrayList<>();
 		final Map<Slide, List<UniSlide>> map = new HashMap<>();
 
@@ -104,58 +109,42 @@ public final class Solver {
 		return presentation;
 	}
 
-	public static List<Slide> solveSameOrder(final List<Slide> slides) {
-		System.out.print("X");
-		final Map<String, List<Slide>> tags1 = new HashMap<>();
-		final Map<String, List<Slide>> tags2 = new HashMap<>();
+	private static List<Slide> solveGreedy(final List<Slide> slides) {
+		final List<Slide> presentation = new ArrayList<>(slides.size());
+		final Slide first = slides.remove(0);
+		presentation.add(first);
+		Slide last = first;
 
-		for (final Slide slide : slides) {
-			for (final String tag1 : slide.getTags()) {
-				tags1.computeIfAbsent(tag1, foo -> new ArrayList<>()).add(slide);
+		while (!slides.isEmpty()) {
+			final Map<Slide, Integer> scores = new HashMap<>();
 
-				for (final String tag2 : slide.getTags()) {
-					if (tag2 == tag1) {
-						continue;
-					}
-
-					final String tag12 = tag1.compareTo(tag2) > 0 ? tag1 + tag2 : tag2 + tag1;
-					tags2.computeIfAbsent(tag12, foo -> new ArrayList<>()).add(slide);
-				}
+			for (final Slide slide : slides) {
+				scores.put(slide, slideInterest(last, slide));
 			}
+
+			final Slide next = slides.stream().max((a, b) -> Integer.compare(scores.get(a), scores.get(b))).get();
+
+			slides.remove(next);
+			presentation.add(next);
+			last = next;
 		}
 
-		// tags2.values().forEach(list -> System.out.println(list.size()));
-
-		final List<List<Slide>> transitions = new ArrayList<>();
-
-		tags2.forEach((tag, slides2) -> {
-			slides2.forEach(slide1 -> {
-				slides2.forEach(slide2 -> {
-					if (slide1 == slide2) {
-						return;
-					}
-
-					transitions.add(Arrays.asList(slide1, slide2));
-				});
-			});
-		});
-
-		transitions.sort((t1, t2) -> {
-			return 0;
-		});
-
-		return Collections.emptyList();
+		System.out.println(score(presentation));
+		return presentation;
 	}
 
-	public static List<List<Slide>> splitByOrder(final List<Slide> slides) {
-		final List<List<Slide>> output = new ArrayList<>(100);
+	// split into buckets ordered by size
+	private static List<List<Slide>> splitByOrder(final List<Slide> slides) {
+		final List<List<Slide>> output = new ArrayList<>();
+		final int spread = 5;
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 100 * spread; i++) {
 			output.add(new ArrayList<>());
 		}
 
 		for (final Slide slide : slides) {
-			output.get(slide.getTags().size() - 1).add(slide);
+			final int mod = slide.getPhotos()[0].getIdentifier() % spread;
+			output.get((slide.getTags().size() - 1) * spread + mod).add(slide);
 		}
 
 		return output;
