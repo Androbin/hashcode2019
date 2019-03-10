@@ -2,6 +2,7 @@ import java.util.*;
 
 public abstract class Slide {
 	private List<String> cachedTags;
+	private Set<String> cachedTagSet;
 
 	/**
 	 * Get contained photos
@@ -20,8 +21,12 @@ public abstract class Slide {
 		return cachedTags;
 	}
 
+	public Set<String> getTagSet() {
+		return cachedTagSet;
+	}
+
 	protected void cacheTags() {
-		cachedTags = new LinkedList<>();
+		cachedTags = new ArrayList<>();
 
 		final Photo[] photos = getPhotos();
 
@@ -32,5 +37,7 @@ public abstract class Slide {
 				}
 			}
 		}
+
+		cachedTagSet = new HashSet<>(cachedTags);
 	}
 }

@@ -5,12 +5,12 @@ public final class Solver {
 	private Solver() {
 	}
 
-	private static <T> int intersect(final List<T> l0, final List<T> l1) {
+	private static <T> int intersect(final Collection<T> l0, final Collection<T> l1) {
 		return (int) l0.stream().filter(l1::contains).count();
 	}
 
 	private static int slideInterest(final Slide slide0, final Slide slide1) {
-		final int intersection = intersect(slide0.getTags(), slide1.getTags());
+		final int intersection = intersect(slide0.getTags(), slide1.getTagSet());
 		return Math.min(slide0.getTags().size() - intersection,
 				Math.min(intersection, slide1.getTags().size() - intersection));
 	}
@@ -20,24 +20,38 @@ public final class Solver {
 				.collect(Collectors.toList());
 	}
 
-	private static List<Slide> getVerticalSlides(final List<Photo> photos, final boolean even) {
-		final List<Photo> verticalPhotos = photos.stream().filter(Photo::isVertical)
-				.sorted((photo0, photo1) -> Integer.compare(photo0.getTags().size(), photo1.getTags().size()))
-				.collect(Collectors.toList());
+	private static List<Slide> getVerticalSlidesGreedy(final List<Photo> photos) {
+		final List<Photo> verticalPhotos = photos.stream().filter(Photo::isVertical).collect(Collectors.toList());
 		final List<Slide> slides = new ArrayList<>(verticalPhotos.size() / 2);
 
-		if (even) {
-			for (int i = 0; i < verticalPhotos.size() / 2; i++) {
-				final Photo first = verticalPhotos.get(i);
-				final Photo last = verticalPhotos.get(verticalPhotos.size() - i - 1);
-				slides.add(new SlideVertical(first, last));
+		while (!verticalPhotos.isEmpty()) {
+			final Photo photo1 = verticalPhotos.get(0);
+			Photo photo2 = null;
+			int score2 = Integer.MAX_VALUE;
+
+			for (final Photo photo : verticalPhotos) {
+				if (photo == photo1) {
+					continue;
+				}
+
+				final int score = intersect(photo1.getTags(), photo.getTags());
+
+				if (score <= score2) {
+					photo2 = photo;
+					score2 = score;
+
+					if (score == 0) {
+						break;
+					}
+				}
 			}
-		} else {
-			for (int i = 0; i < verticalPhotos.size() - 1; i += 2) {
-				final Photo first = verticalPhotos.get(i);
-				final Photo second = verticalPhotos.get(i + 1);
-				slides.add(new SlideVertical(first, second));
+
+			if (photo2 != null) {
+				slides.add(new SlideVertical(photo1, photo2));
 			}
+
+			verticalPhotos.remove(photo1);
+			verticalPhotos.remove(photo2);
 		}
 
 		return slides;
@@ -46,11 +60,8 @@ public final class Solver {
 	public static List<Slide> solve(final List<Photo> photos) {
 		final List<Slide> slides = new LinkedList<>();
 		slides.addAll(getHorizontalSlides(photos));
-		slides.addAll(getVerticalSlides(photos, true));
-		return solveSlides(slides);
-	}
+		slides.addAll(getVerticalSlidesGreedy(photos));
 
-	private static List<Slide> solveSlides(final List<Slide> slides) {
 		final List<Slide> presentation = new ArrayList<>();
 		final List<List<Slide>> order = splitByOrder(slides);
 
@@ -75,26 +86,26 @@ public final class Solver {
 		}
 
 		final List<Slide> presentation = new ArrayList<>(slides.size());
-		final Slide first = slides.remove(0);
-		presentation.add(first);
-		Slide last = first;
-
-		for (final String tag : last.getTags()) {
-			tags1.get(tag).remove(last);
-		}
+		Slide last = null;
 
 		while (!slides.isEmpty()) {
-			final List<Slide> reduced = last.getTags().stream().flatMap(tag -> tags1.get(tag).stream()).distinct()
-					.collect(Collectors.toList());
+			final Slide next;
 
-			final Map<Slide, Integer> scores = new HashMap<>();
+			if (last == null) {
+				next = slides.get(0);
+			} else {
+				final List<Slide> reduced = last.getTags().stream().flatMap(tag -> tags1.get(tag).stream()).distinct()
+						.collect(Collectors.toList());
 
-			for (final Slide slide : reduced) {
-				scores.put(slide, slideInterest(last, slide));
+				final Map<Slide, Integer> scores = new HashMap<>();
+
+				for (final Slide slide : reduced) {
+					scores.put(slide, slideInterest(last, slide));
+				}
+
+				next = reduced.stream().max((a, b) -> Integer.compare(scores.get(a), scores.get(b)))
+						.orElseGet(() -> slides.get(0));
 			}
-
-			final Slide next = reduced.stream().max((a, b) -> Integer.compare(scores.get(a), scores.get(b)))
-					.orElseGet(() -> slides.get(0));
 
 			slides.remove(next);
 			presentation.add(next);
